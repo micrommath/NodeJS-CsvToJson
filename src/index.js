@@ -3,8 +3,8 @@ const path = require('path')
 const papaparse = require('papaparse')
 const fs = require('fs')
 
-const pathFileIn = path.resolve('../', 'resources', 'brasil.csv')
-const pathFileOut = path.resolve('../', 'resources', 'brasil.json')
+const pathFileIn = path.resolve('./', 'resources', 'brasil.csv')
+const pathFileOut = path.resolve('./', 'resources', 'brasil.json')
 
 var queueRead = []
 var isTerminatedRead = false;
@@ -21,19 +21,23 @@ function read() {
     msgStatus()
     const csv = new Csv()
 
-    csv.readFile(pathFileIn).then((fileRead) => {
-        queueRead = queueRead.concat(fileRead.data)
-        totalLines = fileRead.length
+    csv.readFile(pathFileIn)
+        .then((fileRead) => {
+            queueRead = queueRead.concat(fileRead.data)
+            totalLines = fileRead.length
 
-        isTerminatedRead = true;
-    })
+            isTerminatedRead = true;
+        })
+        .catch((err) => {
+            throw err
+        })
 }
 
 function parse() {
 
     intervalIdParse = setInterval(() => {
         msgStatus()
-        
+
         if (queueRead.length > 0 || !isTerminatedRead) {
             let row = queueRead.shift()
 
@@ -45,14 +49,14 @@ function parse() {
             clearInterval(intervalIdParse)
         }
 
-    }, 15)
+    }, 5)
 }
 
 function write() {
 
     intervalIdWrite = setInterval(() => {
         msgStatus()
-        
+
         if (queueParse.length > 0 || !isTerminatedParse) {
             let json = queueParse.shift()
 
@@ -65,7 +69,7 @@ function write() {
         } else
             clearInterval(intervalIdWrite)
 
-    }, 15)
+    }, 0)
 }
 
 const msgStatus = () => {
@@ -81,6 +85,10 @@ const msgStatus = () => {
         status: {
             leituraTerminada: isTerminatedRead,
             conversaoTerminada: isTerminatedParse
+        },
+        arquivo: {
+            entrada: pathFileIn,
+            saida: pathFileOut
         },
     }
 
