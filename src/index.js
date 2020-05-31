@@ -2,17 +2,9 @@ const Csv = require('./Csv')
 const path = require('path')
 const papaparse = require('papaparse')
 const fs = require('fs')
-
-const pathFileIn = path.resolve('./', 'resources', 'brasil.csv')
-const pathFileOut = path.resolve('./', 'resources', 'brasil.json')
-
-var queueRead = []
-var isTerminatedRead = false;
-
-var queueParse = []
-var isTerminatedParse = false;
-
-var totalLines = -1;
+const queues = require('./queue')
+const files = require('./files')
+const status = require('./status')
 
 var intervalIdParse = ''
 var intervalIdWrite = ''
@@ -21,12 +13,12 @@ function read() {
     msgStatus()
     const csv = new Csv()
 
-    csv.readFile(pathFileIn)
+    csv.readFile(files.pathFileIn)
         .then((fileRead) => {
-            queueRead = queueRead.concat(fileRead.data)
-            totalLines = fileRead.length
+            queues.queueRead = queues.queueRead.concat(fileRead.data)
+            queues.totalLines = fileRead.length
 
-            isTerminatedRead = true;
+            status.isTerminatedRead = true;
         })
         .catch((err) => {
             throw err
@@ -38,18 +30,18 @@ function parse() {
     intervalIdParse = setInterval(() => {
         msgStatus()
 
-        if (queueRead.length > 0 || !isTerminatedRead) {
-            let row = queueRead.shift()
+        if (queues.queueRead.length > 0 || !status.isTerminatedRead) {
+            let row = queues.queueRead.shift()
 
             let json = papaparse.parse(row).data
 
-            queueParse.push(json)
+            queues.queueParse.push(json)
         } else {
-            isTerminatedParse = true
+            status.isTerminatedParse = true
             clearInterval(intervalIdParse)
         }
 
-    }, 5)
+    }, 20)
 }
 
 function write() {
@@ -57,12 +49,12 @@ function write() {
     intervalIdWrite = setInterval(() => {
         msgStatus()
 
-        if (queueParse.length > 0 || !isTerminatedParse) {
-            let json = queueParse.shift()
+        if (queues.queueParse.length > 0 || !status.isTerminatedParse) {
+            let json = queues.queueParse.shift()
 
             // console.log(json)
 
-            fs.appendFile(pathFileOut, JSON.stringify(json), { encoding: 'utf8' }, (error) => {
+            fs.appendFile(files.pathFileOut, JSON.stringify(json), { encoding: 'utf8' }, (error) => {
                 if (error) throw error
             })
 
@@ -73,26 +65,17 @@ function write() {
 }
 
 const msgStatus = () => {
-
     console.clear()
 
-    let obj = {
-        totalLinhas: totalLines,
-        filas: {
-            leitura: queueRead.length,
-            conversao: queueParse.length
+    console.log({
+        totalLines: queues.totalLines,
+        queues: {
+            leitura: queues.queueRead.length,
+            conversao: queues.queueParse.length
         },
-        status: {
-            leituraTerminada: isTerminatedRead,
-            conversaoTerminada: isTerminatedParse
-        },
-        arquivo: {
-            entrada: pathFileIn,
-            saida: pathFileOut
-        },
-    }
-
-    console.log(obj)
+        status,
+        files       
+    })
 }
 
 function main() {
