@@ -1,22 +1,26 @@
 const queues = require('./queue')
 const files = require('./files')
 const status = require('./status')
+const Stopwatch = require('statman-stopwatch');
 
 exports.isTerminatedRead = false;
 exports.isTerminatedParse = false;
 
-exports.startTimeRead = 'running'
-exports.startTimeParse = 'running'
-exports.startTimeWrite = 'running'
+exports.timeRunningApp = new Stopwatch(true)
+
+exports.timeElapsedRead = 'running'
+exports.timeElapsedParse = 'running'
+exports.timeElapsedWrite = 'running'
 
 exports.reportStatus = () => {
     console.clear()
 
     console.log({
-        totalLines: queues.totalLines,
+        timeRunningApp: status.timeRunningApp.read().toFixed(3) + " milliseconds",
+        totalLinesFilesIn: queues.totalLines,
         queues: {
-            leitura: queues.queueRead.length,
-            conversao: queues.queueParse.length
+            read: queues.queueRead.length,
+            parse: queues.queueParse.length
         },
         status: {
             isTerminatedRead: status.isTerminatedRead,
@@ -24,9 +28,9 @@ exports.reportStatus = () => {
         },
         files,
         timers: {
-            startTimeRead: status.startTimeRead,
-            startTimeParse: status.startTimeParse,
-            startTimeWrite: status.startTimeWrite
+            timeElapsedRead: status.timeElapsedRead,
+            timeElapsedParse: status.timeElapsedParse,
+            timeElapsedWrite: status.timeElapsedWrite
         }
     })
 } 

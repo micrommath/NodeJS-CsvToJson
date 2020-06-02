@@ -25,7 +25,8 @@ class Write {
                     })
                 }
             } else {                
-                status.startTimeWrite = stopwatch.stop()
+                status.timeElapsedWrite = stopwatch.stop().toFixed(3) + " milliseconds"
+                status.timeRunningApp.stop()
                 status.reportStatus()
                 clearInterval(intervalIdWrite)
             }
