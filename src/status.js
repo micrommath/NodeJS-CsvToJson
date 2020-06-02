@@ -5,6 +5,10 @@ const status = require('./status')
 exports.isTerminatedRead = false;
 exports.isTerminatedParse = false;
 
+exports.startTimeRead = 'running'
+exports.startTimeParse = 'running'
+exports.startTimeWrite = 'running'
+
 exports.reportStatus = () => {
     console.clear()
 
@@ -18,6 +22,11 @@ exports.reportStatus = () => {
             isTerminatedRead: status.isTerminatedRead,
             isTerminatedParse: status.isTerminatedParse
         },
-        files
+        files,
+        timers: {
+            startTimeRead: status.startTimeRead,
+            startTimeParse: status.startTimeParse,
+            startTimeWrite: status.startTimeWrite
+        }
     })
-}
+} 

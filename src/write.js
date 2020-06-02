@@ -4,23 +4,31 @@ const queues = require('./queue')
 const status = require('./status')
 const files = require('./files')
 
-class Write {
+const Stopwatch = require('statman-stopwatch');
 
+class Write {
     write() {
+
+        const stopwatch = new Stopwatch()
+        stopwatch.start()
 
         let intervalIdWrite = setInterval(() => {
             status.reportStatus()
 
             if (queues.queueParse.length > 0 || !status.isTerminatedParse) {
-                let json = queues.queueParse.shift()
+                if (queues.queueParse.length > 0) {
 
-                fs.appendFile(files.pathFileOut, JSON.stringify(json), { encoding: 'utf8' }, (error) => {
-                    if (error) throw error
-                })
+                    let json = queues.queueParse.shift()
 
-            } else
+                    fs.appendFile(files.pathFileOut, JSON.stringify(json), { encoding: 'utf8' }, (error) => {
+                        if (error) throw error
+                    })
+                }
+            } else {                
+                status.startTimeWrite = stopwatch.stop()
+                status.reportStatus()
                 clearInterval(intervalIdWrite)
-
+            }
         }, 0)
     }
 }
