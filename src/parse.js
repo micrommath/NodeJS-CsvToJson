@@ -22,7 +22,7 @@ class Parse {
                 }
             } else {
                 status.isTerminatedParse = true
-                status.timeElapsedParse = stopwatch.stop().toFixed(3) + " milliseconds"
+                status.timeElapsedParse = stopwatch.stop().toFixed(3)
                 clearInterval(intervalIdParse)
             }
 

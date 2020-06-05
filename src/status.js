@@ -13,8 +13,8 @@ exports.timeElapsedParse = 'running'
 exports.timeElapsedWrite = 'running'
 
 exports.reportStatus = () => {
+    
     console.clear()
-
     console.log({
         timeRunningApp: status.timeRunningApp.read().toFixed(3) + " milliseconds",
         totalLinesFilesIn: queues.totalLines,

@@ -19,7 +19,7 @@ class Read {
                 queues.totalLines = fileRead.length
 
                 status.isTerminatedRead = true
-                status.timeElapsedRead =  stopwatch.stop().toFixed(3) + " milliseconds"
+                status.timeElapsedRead =  stopwatch.stop().toFixed(3)
             })
             .catch((err) => {
                 throw err
